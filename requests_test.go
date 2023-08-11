@@ -46,7 +46,7 @@ func TestRequest_withoutMethod(t *testing.T) {
 func TestRequest_post(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		buf, _ := io.ReadAll(req.Body)
-		assert.Equal(t, `{"foo":"bar"}`, string(buf))
+		assert.Equal(t, "{\"foo\":\"bar\"}\n", string(buf))
 		assert.Equal(t, "POST", req.Method)
 		w.Write([]byte("ok"))
 	}))

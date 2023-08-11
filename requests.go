@@ -1,9 +1,7 @@
 package mango
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -74,11 +72,11 @@ func (rb *RequestBuilder) Do(ctx context.Context) (*http.Response, error) {
 func (rb *RequestBuilder) makeRequest(ctx context.Context) (*http.Response, error) {
 	var body io.Reader
 	if rb.payload != nil {
-		payload, err := json.Marshal(rb.payload)
+		_body, err := Marshal(rb.payload)
 		if err != nil {
 			return nil, err
 		}
-		body = bytes.NewBuffer(payload)
+		body = _body
 	}
 
 	req, err := http.NewRequestWithContext(ctx, rb.method, rb.url, body)
