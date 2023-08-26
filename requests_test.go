@@ -75,7 +75,8 @@ func TestRequest_withParams(t *testing.T) {
 	defer server.Close()
 
 	ctx := context.TODO()
-	res, err := PostRequest().
+	res, err := NewRequest().
+		Post().
 		SetClient(server.Client()).
 		SetUrl(server.URL).
 		SetParams(map[string]string{

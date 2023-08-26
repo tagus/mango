@@ -19,14 +19,6 @@ func NewRequest() *RequestBuilder {
 	return &RequestBuilder{}
 }
 
-func GetRequest() *RequestBuilder {
-	return &RequestBuilder{method: "GET"}
-}
-
-func PostRequest() *RequestBuilder {
-	return &RequestBuilder{method: "POST"}
-}
-
 func (rb *RequestBuilder) SetUrl(url string) *RequestBuilder {
 	rb.url = url
 	return rb
@@ -49,6 +41,16 @@ func (rb *RequestBuilder) SetClient(client *http.Client) *RequestBuilder {
 
 func (rb *RequestBuilder) SetMethod(method string) *RequestBuilder {
 	rb.method = method
+	return rb
+}
+
+func (rb *RequestBuilder) Post() *RequestBuilder {
+	rb.method = "POST"
+	return rb
+}
+
+func (rb *RequestBuilder) Get() *RequestBuilder {
+	rb.method = "GET"
 	return rb
 }
 
