@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type LogLevel int8
@@ -24,13 +26,13 @@ const (
 func (l LogLevel) String() string {
 	switch l {
 	case LogLevelError:
-		return "ERROR"
+		return color.RedString("[ERROR]")
 	case LogLevelWarning:
-		return "WARN"
+		return color.YellowString("[WARN]")
 	case LogLevelInfo:
-		return "INFO"
+		return color.GreenString("[INFO]")
 	case LogLevelDebug:
-		return "DEBUG"
+		return "[DEBUG]"
 	default:
 		return ""
 	}
@@ -38,7 +40,11 @@ func (l LogLevel) String() string {
 
 func Init(level LogLevel, prefix string) {
 	lvl = level
-	logger = log.New(os.Stdout, fmt.Sprintf("[%s] ", prefix), log.Ltime)
+	lp := ""
+	if prefix != "" {
+		lp = fmt.Sprintf("[%s] ", prefix)
+	}
+	logger = log.New(os.Stdout, lp, log.Ltime)
 }
 
 func check() {
@@ -50,12 +56,12 @@ func check() {
 
 func decorate(l LogLevel, format string) string {
 	if format == "" {
-		return fmt.Sprintf("[%v]", l)
+		return fmt.Sprintf("%v", l)
 	}
 	if !strings.HasSuffix(format, "\n") {
 		format += "\n"
 	}
-	return fmt.Sprintf("[%v] %s", l, format)
+	return fmt.Sprintf("%v %s", l, format)
 }
 
 func Debug(v ...any) {
