@@ -17,10 +17,10 @@ var (
 )
 
 const (
-	LogLevelError LogLevel = iota
-	LogLevelWarning
+	LogLevelDebug LogLevel = iota
 	LogLevelInfo
-	LogLevelDebug
+	LogLevelWarning
+	LogLevelError
 )
 
 func (l LogLevel) String() string {
