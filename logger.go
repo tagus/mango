@@ -12,8 +12,8 @@ import (
 type LogLevel int8
 
 var (
-	logger *log.Logger
-	lvl    LogLevel
+	logger *log.Logger = log.New(os.Stdout, "", log.Ltime)
+	lvl    LogLevel    = LogLevelDebug
 )
 
 const (
@@ -47,13 +47,6 @@ func Init(level LogLevel, prefix string) {
 	logger = log.New(os.Stdout, lp, log.Ltime)
 }
 
-func check() {
-	if logger == nil {
-		fmt.Println("logging was never initialized")
-		os.Exit(1)
-	}
-}
-
 func decorate(l LogLevel, format string) string {
 	if format == "" {
 		return fmt.Sprintf("%v", l)
@@ -65,7 +58,6 @@ func decorate(l LogLevel, format string) string {
 }
 
 func Debug(v ...any) {
-	check()
 	if LogLevelDebug > lvl {
 		return
 	}
@@ -75,7 +67,6 @@ func Debug(v ...any) {
 }
 
 func Debugf(format string, v ...any) {
-	check()
 	if LogLevelDebug > lvl {
 		return
 	}
@@ -83,7 +74,6 @@ func Debugf(format string, v ...any) {
 }
 
 func Warning(v ...any) {
-	check()
 	if LogLevelWarning > lvl {
 		return
 	}
@@ -93,7 +83,6 @@ func Warning(v ...any) {
 }
 
 func Warningf(format string, v ...any) {
-	check()
 	if LogLevelWarning > lvl {
 		return
 	}
@@ -101,7 +90,6 @@ func Warningf(format string, v ...any) {
 }
 
 func Info(v ...any) {
-	check()
 	if LogLevelInfo > lvl {
 		return
 	}
@@ -111,7 +99,6 @@ func Info(v ...any) {
 }
 
 func Infof(format string, v ...any) {
-	check()
 	if LogLevelInfo > lvl {
 		return
 	}
@@ -119,7 +106,6 @@ func Infof(format string, v ...any) {
 }
 
 func Error(v ...any) {
-	check()
 	if LogLevelError > lvl {
 		return
 	}
@@ -129,7 +115,6 @@ func Error(v ...any) {
 }
 
 func Errorf(v ...any) {
-	check()
 	if LogLevelError > lvl {
 		return
 	}
@@ -137,12 +122,10 @@ func Errorf(v ...any) {
 }
 
 func Fatal(v ...any) {
-	check()
 	logger.Fatal(v...)
 }
 
 func FatalIf(err error, v ...any) {
-	check()
 	if err == nil {
 		return
 	}
