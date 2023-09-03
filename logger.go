@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime/debug"
 	"strings"
 
 	"github.com/fatih/color"
@@ -122,6 +123,7 @@ func Errorf(v ...any) {
 }
 
 func Fatal(v ...any) {
+	debug.PrintStack()
 	logger.Fatal(v...)
 }
 
@@ -131,5 +133,5 @@ func FatalIf(err error, v ...any) {
 	}
 	args := []any{decorate(LogLevelError, ""), " ", err}
 	args = append(args, v...)
-	logger.Fatal(args...)
+	Fatal(args...)
 }
