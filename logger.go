@@ -59,7 +59,7 @@ func decorate(l LogLevel, format string) string {
 }
 
 func Debug(v ...any) {
-	if LogLevelDebug > lvl {
+	if lvl > LogLevelDebug {
 		return
 	}
 	args := []any{decorate(LogLevelDebug, "")}
@@ -68,14 +68,14 @@ func Debug(v ...any) {
 }
 
 func Debugf(format string, v ...any) {
-	if LogLevelDebug > lvl {
+	if lvl > LogLevelDebug {
 		return
 	}
 	logger.Printf(decorate(LogLevelDebug, format), v...)
 }
 
 func Warning(v ...any) {
-	if LogLevelWarning > lvl {
+	if lvl > LogLevelWarning {
 		return
 	}
 	args := []any{decorate(LogLevelWarning, "")}
@@ -84,14 +84,14 @@ func Warning(v ...any) {
 }
 
 func Warningf(format string, v ...any) {
-	if LogLevelWarning > lvl {
+	if lvl > LogLevelWarning {
 		return
 	}
 	logger.Printf(decorate(LogLevelWarning, format), v...)
 }
 
 func Info(v ...any) {
-	if LogLevelInfo > lvl {
+	if lvl > LogLevelInfo {
 		return
 	}
 	args := []any{decorate(LogLevelInfo, "")}
@@ -100,14 +100,14 @@ func Info(v ...any) {
 }
 
 func Infof(format string, v ...any) {
-	if LogLevelInfo > lvl {
+	if lvl > LogLevelInfo {
 		return
 	}
 	logger.Printf(decorate(LogLevelInfo, format), v...)
 }
 
 func Error(v ...any) {
-	if LogLevelError > lvl {
+	if lvl > LogLevelError {
 		return
 	}
 	args := []any{decorate(LogLevelError, "")}
@@ -116,7 +116,7 @@ func Error(v ...any) {
 }
 
 func Errorf(v ...any) {
-	if LogLevelError > lvl {
+	if lvl > LogLevelError {
 		return
 	}
 	logger.Println(v...)
