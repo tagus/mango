@@ -6,12 +6,17 @@ import (
 	"io"
 )
 
-func Unmarshal[T any](rdr io.ReadCloser) (*T, error) {
+func Unmarshal[T any](rdr io.Reader) (*T, error) {
 	decoded := new(T)
 	if err := json.NewDecoder(rdr).Decode(&decoded); err != nil {
 		return nil, err
 	}
 	return decoded, nil
+}
+
+func UnmarshalFromString[T any](str string) (*T, error) {
+	buf := bytes.NewBufferString(str)
+	return Unmarshal[T](buf)
 }
 
 func Marshal(payload any) (io.Reader, error) {
@@ -21,4 +26,12 @@ func Marshal(payload any) (io.Reader, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+func MarshalToString(payload any) (string, error) {
+	rdr, err := Marshal(payload)
+	if err != nil {
+		return "", nil
+	}
+	return ReadAllString(rdr)
 }
