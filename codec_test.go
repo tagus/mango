@@ -51,4 +51,8 @@ func TestUnmarshalFromString(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, decodedSlice)
 	require.Equal(t, []string{"foo", "bar"}, *decodedSlice)
+
+	decodedSlice, err = UnmarshalFromString[[]string]("null")
+	require.NoError(t, err)
+	require.Nil(t, decodedSlice)
 }

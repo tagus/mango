@@ -17,3 +17,13 @@ func Filter[F any](list []F, predicate func(F) bool) []F {
 	}
 	return filtered
 }
+
+func Find[F any](list []F, predicate func(F) bool) (F, bool) {
+	var empty F
+	for _, item := range list {
+		if predicate(item) {
+			return item, true
+		}
+	}
+	return empty, false
+}
