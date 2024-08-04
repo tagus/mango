@@ -1,20 +1,20 @@
 package mango
 
 import (
-	"context"
 	"log"
 	"log/slog"
 	"os"
 	"runtime/debug"
 )
 
-func Init(level slog.Level, prefix string) {
-	h := &LogHandler{
-		prefix: prefix,
-		handler: slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: level,
-		}),
-	}
+func Init(level slog.Level, application string) {
+	var h slog.Handler
+	h = slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: level,
+	})
+	h = h.WithAttrs([]slog.Attr{
+		slog.String("app", application),
+	})
 	logger := slog.New(h)
 	slog.SetDefault(logger)
 }
@@ -32,25 +32,27 @@ func FatalIf(err error, v ...any) {
 	Fatal(args...)
 }
 
-/******************************************************************************/
-
-type LogHandler struct {
-	handler slog.Handler
-	prefix  string
+// StackError wraps an error with the stack information
+// where the error occurred. Note that since stack is saved during creation
+// we need to create this at the exact location where the base error is thrown
+// and not at a higher level.
+type StackError struct {
+	base  error
+	stack []byte
 }
 
-func (h *LogHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	return h.handler.Enabled(ctx, level)
+func (s *StackError) Error() string {
+	return s.base.Error()
 }
 
-func (h *LogHandler) Handle(ctx context.Context, r slog.Record) error {
-	return h.handler.Handle(ctx, r)
+func (s *StackError) Unwrap() error {
+	return s.base
 }
 
-func (h *LogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return h.handler.WithAttrs(attrs)
-}
-
-func (h *LogHandler) WithGroup(name string) slog.Handler {
-	return h.handler.WithGroup(name)
+func WrapError(err error) error {
+	st := &StackError{
+		base:  err,
+		stack: debug.Stack(),
+	}
+	return st
 }
