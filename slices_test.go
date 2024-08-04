@@ -36,3 +36,19 @@ func TestFind(t *testing.T) {
 	require.False(t, ok)
 	require.Equal(t, 0, actual)
 }
+
+func TestSliceEqual(t *testing.T) {
+	first := []int{1, 2, 3}
+	second := []int{1, 2, 3}
+
+	assert.True(t, SliceEqual(first, second, func(a, b int) bool { return a == b }))
+	assert.False(t, SliceEqual(first, []int{1, 2}, func(a, b int) bool { return a == b }))
+}
+
+func TestStringSliceEqual(t *testing.T) {
+	first := []string{"hello", "world"}
+	second := []string{"hello", "world"}
+
+	assert.True(t, StringSliceEqual(first, second))
+	assert.False(t, StringSliceEqual(first, []string{"hello"}))
+}

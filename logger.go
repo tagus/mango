@@ -39,6 +39,7 @@ func (l LogLevel) String() string {
 	}
 }
 
+// Deprecated: use slog instead
 func Init(level LogLevel, prefix string) {
 	lvl = level
 	lp := ""
@@ -48,6 +49,7 @@ func Init(level LogLevel, prefix string) {
 	logger = log.New(os.Stdout, lp, log.Ltime)
 }
 
+// Deprecated: use slog instead
 func decorate(l LogLevel, format string) string {
 	if format == "" {
 		return fmt.Sprintf("%v", l)
@@ -58,6 +60,7 @@ func decorate(l LogLevel, format string) string {
 	return fmt.Sprintf("%v %s", l, format)
 }
 
+// Deprecated: use slog instead
 func Debug(v ...any) {
 	if lvl > LogLevelDebug {
 		return
@@ -67,6 +70,7 @@ func Debug(v ...any) {
 	logger.Println(args...)
 }
 
+// Deprecated: use slog instead
 func Debugf(format string, v ...any) {
 	if lvl > LogLevelDebug {
 		return
@@ -74,6 +78,7 @@ func Debugf(format string, v ...any) {
 	logger.Printf(decorate(LogLevelDebug, format), v...)
 }
 
+// Deprecated: use slog instead
 func Warning(v ...any) {
 	if lvl > LogLevelWarning {
 		return
@@ -83,6 +88,7 @@ func Warning(v ...any) {
 	logger.Println(args...)
 }
 
+// Deprecated: use slog instead
 func Warningf(format string, v ...any) {
 	if lvl > LogLevelWarning {
 		return
@@ -90,6 +96,7 @@ func Warningf(format string, v ...any) {
 	logger.Printf(decorate(LogLevelWarning, format), v...)
 }
 
+// Deprecated: use slog instead
 func Info(v ...any) {
 	if lvl > LogLevelInfo {
 		return
@@ -99,6 +106,7 @@ func Info(v ...any) {
 	logger.Println(args...)
 }
 
+// Deprecated: use slog instead
 func Infof(format string, v ...any) {
 	if lvl > LogLevelInfo {
 		return
@@ -106,6 +114,7 @@ func Infof(format string, v ...any) {
 	logger.Printf(decorate(LogLevelInfo, format), v...)
 }
 
+// Deprecated: use slog instead
 func Error(v ...any) {
 	if lvl > LogLevelError {
 		return
@@ -115,6 +124,7 @@ func Error(v ...any) {
 	logger.Println(args...)
 }
 
+// Deprecated: use slog instead
 func Errorf(v ...any) {
 	if lvl > LogLevelError {
 		return
@@ -122,11 +132,13 @@ func Errorf(v ...any) {
 	logger.Println(v...)
 }
 
+// Deprecated: use slog instead
 func Fatal(v ...any) {
 	debug.PrintStack()
 	logger.Fatal(v...)
 }
 
+// Deprecated: use slog instead
 func FatalIf(err error, v ...any) {
 	if err == nil {
 		return

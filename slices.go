@@ -27,3 +27,23 @@ func Find[F any](list []F, predicate func(F) bool) (F, bool) {
 	}
 	return empty, false
 }
+
+/******************************************************************************/
+
+type Comparator[F any] func(F, F) bool
+
+func SliceEqual[F any](first, second []F, comparator Comparator[F]) bool {
+	if len(first) != len(second) {
+		return false
+	}
+	for i := range first {
+		if !comparator(first[i], second[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func StringSliceEqual(first, second []string) bool {
+	return SliceEqual(first, second, func(a, b string) bool { return a == b })
+}
