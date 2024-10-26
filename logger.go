@@ -8,10 +8,10 @@ import (
 	"runtime/debug"
 )
 
-func Init(level slog.Level, prefix string) {
+func InitLogs(level slog.Level, prefix string) {
 	h := &LogHandler{
 		prefix: prefix,
-		handler: slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		handler: slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 			Level: level,
 		}),
 	}
