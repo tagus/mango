@@ -111,15 +111,15 @@ func (h *LogHandler) appendAttr(builder *strings.Builder, attr slog.Attr) error 
 func (h *LogHandler) getLevelPrefix(level slog.Level) string {
 	switch level {
 	case slog.LevelDebug:
-		return fmt.Sprintf("%sDEBUG%s", Blue, Reset)
+		return ColorizeBlue("DEBUG")
 	case slog.LevelInfo:
-		return fmt.Sprintf("%sINFO%s", Green, Reset)
+		return ColorizeGreen("INFO")
 	case slog.LevelWarn:
-		return fmt.Sprintf("%sWARN%s", Yellow, Reset)
+		return ColorizeYellow("WARN")
 	case slog.LevelError:
-		return fmt.Sprintf("%sERROR%s", Red, Reset)
+		return ColorizeRed("ERROR")
 	default:
-		return fmt.Sprintf("%sUNKNOWN%s", Purple, Reset)
+		return ColorizePurple("UNKNOWN")
 	}
 }
 
