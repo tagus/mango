@@ -146,9 +146,9 @@ func (h *LogHandler) WithGroup(name string) slog.Handler {
 
 /******************************************************************************/
 
-func Fatal(msg string, args ...any) {
+func Fatal(err error, args ...any) {
 	debug.PrintStack()
-	slog.Error(msg, args...)
+	slog.Error(err.Error(), args...)
 	os.Exit(1)
 }
 
@@ -156,7 +156,7 @@ func FatalIf(err error, v ...any) {
 	if err == nil {
 		return
 	}
-	Fatal(err.Error(), v...)
+	Fatal(err, v...)
 }
 
 /******************************************************************************/
