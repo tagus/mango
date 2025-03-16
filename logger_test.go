@@ -76,7 +76,7 @@ func TestLogHandler(t *testing.T) {
 	logger.Warn("warn message", "ts", ts, "count", 2)
 
 	output := buf.String()
-	expected := `[[33mWARN[0m][test-app] warn message
+	expected := `[[38;2;241;196;15mWARN[0m][test-app] warn message
   foo: bar
   ts: 2025-01-19 21:49:01
   count: 2
