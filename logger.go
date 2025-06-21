@@ -11,11 +11,17 @@ import (
 	"sync"
 )
 
+type LoggerMode int
+
+const (
+	LoggerModeDebug LoggerMode = iota
+	LoggerModeJSON
+)
+
 // Init creates a slog logger instance with a custom LogHandler
 // and sets it as the default logger
-func Init(level slog.Level, application string) {
-	var h slog.Handler
-	h = &LogHandler{
+func Init(level slog.Level, mode LoggerMode, application string) {
+	h := &DebugLogHandler{
 		level: level,
 		app:   application,
 		out:   os.Stdout,
@@ -25,8 +31,11 @@ func Init(level slog.Level, application string) {
 	slog.SetDefault(logger)
 }
 
-// LogHandler is a custom slog handler that outputs to stdout
-type LogHandler struct {
+/******************************************************************************/
+
+// DebugLogHandler is a custom slog handler that outputs to stdout in a human-readable format
+// ideal for dev environments.
+type DebugLogHandler struct {
 	app   string
 	level slog.Leveler
 	out   io.Writer
@@ -39,13 +48,13 @@ type LogHandler struct {
 
 // Enabled only records the log if the record's log level is greater than
 // or equal to the handlers log level
-func (h *LogHandler) Enabled(ctx context.Context, level slog.Level) bool {
+func (h *DebugLogHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	return level >= h.level.Level()
 }
 
 // Handle outputs the log record to stdout. Since this logger is meant to be used for
 // local applications with a small amount of output, it will not log the timestamps.
-func (h *LogHandler) Handle(ctx context.Context, record slog.Record) error {
+func (h *DebugLogHandler) Handle(ctx context.Context, record slog.Record) error {
 	var builder strings.Builder
 
 	_, err := builder.WriteString(fmt.Sprintf("[%s][%s] %s", h.getLevelPrefix(record.Level), h.app, record.Message))
@@ -90,7 +99,7 @@ func (h *LogHandler) Handle(ctx context.Context, record slog.Record) error {
 	return err
 }
 
-func (h *LogHandler) appendAttr(builder *strings.Builder, attr slog.Attr) error {
+func (h *DebugLogHandler) appendAttr(builder *strings.Builder, attr slog.Attr) error {
 	// ignore an empty attribute
 	if attr.Equal(slog.Attr{}) {
 		return nil
@@ -104,11 +113,11 @@ func (h *LogHandler) appendAttr(builder *strings.Builder, attr slog.Attr) error 
 	default:
 		value = attr.Value.String()
 	}
-	builder.WriteString(fmt.Sprintf("  %s: %s\n", attr.Key, value))
+	fmt.Fprintf(builder, "  %s: %s\n", attr.Key, value)
 	return nil
 }
 
-func (h *LogHandler) getLevelPrefix(level slog.Level) string {
+func (h *DebugLogHandler) getLevelPrefix(level slog.Level) string {
 	switch level {
 	case slog.LevelDebug:
 		return ColorizeBlue("DEBUG")
@@ -123,13 +132,13 @@ func (h *LogHandler) getLevelPrefix(level slog.Level) string {
 	}
 }
 
-func (h *LogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (h *DebugLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	h.attrs = append(h.attrs, attrs...)
 	return h
 }
 
 // NOTE: groups are not currently supported
-func (h *LogHandler) WithGroup(name string) slog.Handler {
+func (h *DebugLogHandler) WithGroup(name string) slog.Handler {
 	return h
 }
 
@@ -167,7 +176,7 @@ func (s *StackError) Unwrap() error {
 	return s.base
 }
 
-func WrapError(err error) error {
+func WithStack(err error) error {
 	st := &StackError{
 		base:  err,
 		stack: debug.Stack(),

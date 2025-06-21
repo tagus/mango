@@ -5,18 +5,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"log/slog"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestWrappingStackError(t *testing.T) {
+func TestWithStack(t *testing.T) {
 	testErr := errors.New("test error")
-	err := WrapError(testErr)
+	err := WithStack(testErr)
 
 	testErr = fmt.Errorf("wrapped error: %w", err)
 
@@ -24,7 +25,7 @@ func TestWrappingStackError(t *testing.T) {
 	require.Equal(t, true, errors.As(testErr, &stErr))
 }
 
-func TestLogHandler_Enabled(t *testing.T) {
+func TestDebugLogHandler_Enabled(t *testing.T) {
 	ctx := context.TODO()
 
 	tests := []struct {
@@ -49,7 +50,7 @@ func TestLogHandler_Enabled(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			lh := &LogHandler{
+			lh := &DebugLogHandler{
 				app:   "test-app",
 				level: test.curLevel,
 				out:   os.Stdout,
@@ -62,9 +63,9 @@ func TestLogHandler_Enabled(t *testing.T) {
 	}
 }
 
-func TestLogHandler(t *testing.T) {
+func TestDebugLogHandler(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
-	lh := &LogHandler{
+	lh := &DebugLogHandler{
 		app:   "test-app",
 		level: slog.LevelDebug,
 		out:   buf,
@@ -76,10 +77,6 @@ func TestLogHandler(t *testing.T) {
 	logger.Warn("warn message", "ts", ts, "count", 2)
 
 	output := buf.String()
-	expected := `[[38;2;241;196;15mWARN[0m][test-app] warn message
-  foo: bar
-  ts: 2025-01-19 21:49:01
-  count: 2
-`
+	expected := "[\x1b[38;2;241;196;15mWARN\x1b[0m][test-app] warn message\n  foo: bar\n  ts: 2025-01-19 21:49:01\n  count: 2\n"
 	assert.Equal(t, expected, output)
 }
