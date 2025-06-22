@@ -21,11 +21,21 @@ const (
 // Init creates a slog logger instance with a custom LogHandler
 // and sets it as the default logger
 func Init(level slog.Level, mode LoggerMode, application string) {
-	h := &DebugLogHandler{
-		level: level,
-		app:   application,
-		out:   os.Stdout,
-		mu:    &sync.Mutex{},
+	var h slog.Handler
+	switch mode {
+	case LoggerModeDebug:
+		h = &DebugLogHandler{
+			level: level,
+			app:   application,
+			out:   os.Stdout,
+			mu:    &sync.Mutex{},
+		}
+	case LoggerModeJSON:
+		h = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: level,
+		})
+	default:
+		panic(fmt.Sprintf("unknown logger mode: %d", mode))
 	}
 	logger := slog.New(h)
 	slog.SetDefault(logger)
@@ -155,6 +165,13 @@ func FatalIf(err error, v ...any) {
 		return
 	}
 	Fatal(err, v...)
+}
+
+func ErrorIf(err error, v ...any) {
+	if err == nil {
+		return
+	}
+	slog.Error("an unexpected error occurred", "error", err)
 }
 
 /******************************************************************************/
