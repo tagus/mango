@@ -3,6 +3,7 @@ package mango
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -10,13 +11,16 @@ import (
 type RequestBuilder struct {
 	url     string
 	method  string
-	payload any
+	payload map[string]any
 	params  map[string]string
 	client  *http.Client
 }
 
 func NewRequest() *RequestBuilder {
-	return &RequestBuilder{}
+	return &RequestBuilder{
+		params:  make(map[string]string),
+		payload: make(map[string]any),
+	}
 }
 
 func (rb *RequestBuilder) SetUrl(url string) *RequestBuilder {
@@ -24,13 +28,21 @@ func (rb *RequestBuilder) SetUrl(url string) *RequestBuilder {
 	return rb
 }
 
-func (rb *RequestBuilder) SetPayload(payload any) *RequestBuilder {
-	rb.payload = payload
+func (rb *RequestBuilder) AddRequestField(key string, value any) *RequestBuilder {
+	rb.payload[key] = value
 	return rb
 }
 
-func (rb *RequestBuilder) SetParams(params map[string]string) *RequestBuilder {
-	rb.params = params
+func (rb *RequestBuilder) AddRequestFieldOptional(key string, value any, predicate bool) *RequestBuilder {
+	if !predicate {
+		return rb
+	}
+	rb.payload[key] = value
+	return rb
+}
+
+func (rb *RequestBuilder) AddQueryParam(key string, value any) *RequestBuilder {
+	rb.params[key] = fmt.Sprintf("%v", value)
 	return rb
 }
 
@@ -72,13 +84,15 @@ func (rb *RequestBuilder) Do(ctx context.Context) (*http.Response, error) {
 }
 
 func (rb *RequestBuilder) makeRequest(ctx context.Context) (*http.Response, error) {
-	var body io.Reader
-	if rb.payload != nil {
-		_body, err := Marshal(rb.payload)
+	var (
+		body io.Reader
+		err  error
+	)
+	if len(rb.payload) > 0 {
+		body, err = Marshal(rb.payload)
 		if err != nil {
 			return nil, err
 		}
-		body = _body
 	}
 
 	req, err := http.NewRequestWithContext(ctx, rb.method, rb.url, body)
