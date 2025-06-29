@@ -10,10 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type Payload struct {
-	Foo string `json:"foo"`
-}
-
 func TestRequest_withoutUrl(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("ok"))
@@ -57,9 +53,7 @@ func TestRequest_post(t *testing.T) {
 		SetMethod("POST").
 		SetClient(server.Client()).
 		SetUrl(server.URL).
-		SetPayload(Payload{
-			Foo: "bar",
-		}).
+		AddRequestField("foo", "bar").
 		Do(ctx)
 
 	assert.NoError(t, err)
@@ -79,9 +73,7 @@ func TestRequest_withParams(t *testing.T) {
 		Post().
 		SetClient(server.Client()).
 		SetUrl(server.URL).
-		SetParams(map[string]string{
-			"foo": "bar",
-		}).
+		AddQueryParam("foo", "bar").
 		Do(ctx)
 
 	assert.NoError(t, err)
