@@ -82,6 +82,14 @@ func BadRequestError(msg string) ResponseError {
 	}
 }
 
+func BadRequestErrorWithCause(msg string, err error) ResponseError {
+	return ResponseError{
+		StatusCode: http.StatusBadRequest,
+		Message:    msg,
+		Err:        err,
+	}
+}
+
 func NotFoundError(msg string) ResponseError {
 	return ResponseError{
 		StatusCode: http.StatusNotFound,
