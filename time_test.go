@@ -43,12 +43,12 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 		{
 			name:     "valid date only",
 			input:    `"2023-10-01"`,
-			expected: time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
+			expected: time.Date(2023, 10, 1, 0, 0, 0, 0, time.Local),
 		},
 		{
 			name:     "valid date time",
 			input:    `"2023-10-01 12:00:00"`,
-			expected: time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC),
+			expected: time.Date(2023, 10, 1, 12, 0, 0, 0, time.Local),
 		},
 		{
 			name:      "invalid value",
@@ -142,6 +142,44 @@ func TestTimestamp_Value(t *testing.T) {
 			value, err := test.input.Value()
 			assert.NoError(t, err)
 			assert.Equal(t, test.expected, value)
+		})
+	}
+}
+
+func TestParseTimestamp(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		expectErr bool
+	}{
+		{
+			name:  "valid RFC3339",
+			input: "2023-10-01T12:00:00Z",
+		},
+		{
+			name:  "valid date only",
+			input: "2023-10-01",
+		},
+		{
+			name:  "valid date time",
+			input: "2023-10-01 12:00:00",
+		},
+		{
+			name:      "invalid format",
+			input:     "invalid-date",
+			expectErr: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ts, err := ParseTimestamp(test.input)
+			if test.expectErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotZero(t, ts.Time)
 		})
 	}
 }

@@ -55,6 +55,19 @@ var validTimestampFormats = []string{
 	time.DateTime, // "2023-10-01 12:00:00"
 }
 
+// ParseTimestamp attempts to parse a string into a Timestamp
+func ParseTimestamp(s string) (Timestamp, error) {
+	var ts Timestamp
+	for _, format := range validTimestampFormats {
+		parsedTime, err := time.ParseInLocation(format, s, time.Local)
+		if err == nil {
+			ts.Time = parsedTime
+			return ts, nil
+		}
+	}
+	return ts, fmt.Errorf("invalid timestamp given: %s", s)
+}
+
 // Timestamp is a simple wrapper around time.Time that allows for more permissive
 // JSON unmarshalling of strings. This can be used as a first class field in structs
 // and is fully compatible with sql drivers.
@@ -73,16 +86,12 @@ func (t *Timestamp) UnmarshalJSON(data []byte) error {
 		t.Time = time.Time{}
 		return nil
 	}
-
-	for _, format := range validTimestampFormats {
-		parsedTime, err := time.Parse(format, s)
-		if err == nil {
-			t.Time = parsedTime
-			return nil
-		}
+	ts, err := ParseTimestamp(s)
+	if err != nil {
+		return fmt.Errorf("failed to parse timestamp: %w", err)
 	}
-
-	return fmt.Errorf("invalid timestamp given: %s", s)
+	*t = ts
+	return nil
 }
 
 func (t *Timestamp) Scan(value any) error {
