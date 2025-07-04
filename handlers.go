@@ -1,7 +1,9 @@
 package mango
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 )
@@ -20,14 +22,17 @@ func WrapErrorHandler(h ErrorHandler) http.HandlerFunc {
 			if re.Err != nil {
 				slog.Error("unexpect error in handler", "err", re.Err)
 			}
-			w.WriteHeader(re.StatusCode)
-			w.Write([]byte(re.Message))
+			accept := r.Header.Get("Accept")
+			if accept == "application/json" {
+				WriteJSONResponse(w, re.StatusCode, re)
+			} else {
+				WritePlainResponse(w, re.StatusCode, re.Message)
+			}
 			return
 		}
 
 		slog.Error("unexpected error in handler", "err", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("unexpected error occurred"))
+		WritePlainResponse(w, http.StatusInternalServerError, "unexpected error occurred")
 	}
 }
 
@@ -43,14 +48,31 @@ type ResponseError struct {
 }
 
 func (e ResponseError) Error() string {
+	if e.Err == nil {
+		return e.Message
+	}
 	if e.Message == "" {
 		return e.Err.Error()
 	}
-	return e.Message
+	return fmt.Sprintf("%s: %v", e.Message, e.Err)
 }
 
 func (e ResponseError) Unwrap() error {
 	return e.Err
+}
+
+func (e ResponseError) MarshalJSON() ([]byte, error) {
+	type resp struct {
+		Message string `json:"message"`
+		Error   string `json:"error,omitempty"`
+	}
+	res := resp{
+		Message: e.Message,
+	}
+	if e.Err != nil {
+		res.Error = e.Err.Error()
+	}
+	return json.Marshal(res)
 }
 
 func BadRequestError(msg string) ResponseError {
