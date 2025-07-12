@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 )
 
@@ -106,6 +107,12 @@ func (rb *RequestBuilder) makeRequest(ctx context.Context) (*http.Response, erro
 		q.Add(key, val)
 	}
 	req.URL.RawQuery = q.Encode()
+
+	slog.Debug("making http request",
+		slog.String("method", rb.method),
+		slog.String("url", req.URL.String()),
+		slog.Bool("has_payload", body != nil),
+	)
 
 	return rb.client.Do(req)
 }
