@@ -18,6 +18,54 @@ func TestFormatTimeSince(t *testing.T) {
 	assert.NotEmpty(t, timeSince)
 }
 
+func TestDuration_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		expected  time.Duration
+		expectErr bool
+	}{
+		{
+			name:     "valid duration string",
+			input:    `"1h30m"`,
+			expected: time.Hour + 30*time.Minute,
+		},
+		{
+			name:     "valid seconds string",
+			input:    `"45s"`,
+			expected: 45 * time.Second,
+		},
+		{
+			name:      "invalid duration string",
+			input:     `"invalid"`,
+			expectErr: true,
+		},
+		{
+			name:     "valid numeric nanoseconds",
+			input:    `90000000000`,
+			expected: 90 * time.Second,
+		},
+		{
+			name:      "invalid numeric value",
+			input:     `invalid`,
+			expectErr: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var d Duration
+			err := d.UnmarshalJSON([]byte(test.input))
+			if test.expectErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, time.Duration(d.Duration))
+		})
+	}
+}
+
 func TestTimestamp_UnmarshalJSON(t *testing.T) {
 	tests := []struct {
 		name      string

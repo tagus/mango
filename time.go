@@ -2,6 +2,7 @@ package mango
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -115,4 +116,33 @@ func (t Timestamp) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return t.Time, nil
+}
+
+/******************************************************************************/
+
+// Duration is a simple wrapper around time.Duration that supports json unmarshalling
+// from a duration string (e.g. "1h30m", "45s") or a raw numeric nanoseconds value.
+// This can be used as a first class field in structs.
+type Duration struct {
+	time.Duration
+}
+
+func (d *Duration) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		v, err := time.ParseDuration(s)
+		if err != nil {
+			return fmt.Errorf("failed to parse duration: %w", err)
+		}
+		*d = Duration{Duration: v}
+		return nil
+	}
+
+	// fallback: numeric (nanoseconds)
+	var n int64
+	if err := json.Unmarshal(data, &n); err != nil {
+		return err
+	}
+	*d = Duration{Duration: time.Duration(n)}
+	return nil
 }
