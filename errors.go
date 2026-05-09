@@ -3,7 +3,7 @@ package mango
 import "fmt"
 
 var (
-	ErrValidationErr = fmt.Errorf("validation error")
+	ErrValidation = fmt.Errorf("validation error")
 )
 
 type validationError struct {
@@ -21,5 +21,5 @@ func (e *validationError) Error() string {
 }
 
 func (e *validationError) Is(target error) bool {
-	return target == ErrValidationErr
+	return target == ErrValidation
 }

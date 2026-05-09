@@ -15,7 +15,7 @@ func TestValidationError_Is(t *testing.T) {
 	}{
 		{
 			name:     "matches validation sentinel",
-			target:   ErrValidationErr,
+			target:   ErrValidation,
 			expected: true,
 		},
 		{
